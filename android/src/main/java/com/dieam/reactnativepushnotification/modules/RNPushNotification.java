@@ -2,6 +2,7 @@ package com.dieam.reactnativepushnotification.modules;
 
 import android.app.Activity;
 import android.app.Application;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -13,12 +14,15 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import org.json.*;
 
@@ -28,12 +32,14 @@ public class RNPushNotification extends ReactContextBaseJavaModule {
     private ReactContext mReactContext;
     private RNPushNotificationHelper mRNPushNotificationHelper;
     private String token;
+    private final Random mRandomNumberGenerator;
 
     public RNPushNotification(ReactApplicationContext reactContext) {
         super(reactContext);
 
         mReactContext = reactContext;
         mRNPushNotificationHelper = new RNPushNotificationHelper((Application) reactContext.getApplicationContext());
+        mRandomNumberGenerator = new Random(System.currentTimeMillis());
         registerNotificationsRegistration();
         registerNotificationsReceiveNotification();
     }
@@ -115,6 +121,38 @@ public class RNPushNotification extends ReactContextBaseJavaModule {
         sendEvent("remoteNotificationReceived", params);
     }
 
+    private void registerNotificationsReceiveNotificationActions(ReadableArray actions) {
+        IntentFilter intentFilter = new IntentFilter();
+        // Add filter for each actions.
+        for (int i=0; i<actions.size(); i++) {
+            String action = actions.getString(i);
+            intentFilter.addAction(action);
+        }
+        mReactContext.registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Bundle bundle = intent.getBundleExtra("notification");
+
+                // Notify the action.
+                notifyNotificationAction(bundle);
+
+                // Dismiss the notification popup.
+                NotificationManager manager = (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
+                int notificationID = Integer.parseInt(bundle.getString("id"));
+                manager.cancel(notificationID);
+            }
+        }, intentFilter);
+    }
+
+    private void notifyNotificationAction(Bundle bundle) {
+        String bundleString = convertJSON(bundle);
+
+        WritableMap params = Arguments.createMap();
+        params.putString("dataJSON", bundleString);
+
+        sendEvent("notificationActionReceived", params);
+    }
+
     private String convertJSON(Bundle bundle) {
         JSONObject json = new JSONObject();
         Set<String> keys = bundle.keySet();
@@ -147,13 +185,32 @@ public class RNPushNotification extends ReactContextBaseJavaModule {
     @ReactMethod
     public void presentLocalNotification(ReadableMap details) {
         Bundle bundle = Arguments.toBundle(details);
+        // If notification ID is not provided by the user, generate one at random
+        if ( bundle.getString("id") == null ) {
+            bundle.putString("id", String.valueOf(mRandomNumberGenerator.nextInt()));
+        }
         mRNPushNotificationHelper.sendNotification(bundle);
     }
 
     @ReactMethod
     public void scheduleLocalNotification(ReadableMap details) {
         Bundle bundle = Arguments.toBundle(details);
+        // If notification ID is not provided by the user, generate one at random
+        if ( bundle.getString("id") == null ) {
+            bundle.putString("id", String.valueOf(mRandomNumberGenerator.nextInt()));
+        }
         mRNPushNotificationHelper.sendNotificationScheduled(bundle);
     }
 
+    @ReactMethod
+    public void cancelLocalNotifications(ReadableMap details) {
+        String notificationIdString = details.getString("id");
+        Log.i("Notification", "Deleting notification with ID " + notificationIdString);
+        mRNPushNotificationHelper.cancelNotification(notificationIdString);
+    }
+
+    @ReactMethod
+    public void registerNotificationActions(ReadableArray actions) {
+        registerNotificationsReceiveNotificationActions(actions);
+    }    
 }
