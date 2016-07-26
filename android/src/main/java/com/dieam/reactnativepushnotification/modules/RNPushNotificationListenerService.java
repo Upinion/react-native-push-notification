@@ -46,9 +46,10 @@ public class RNPushNotificationListenerService extends GcmListenerService {
         }
 
         Boolean isRunning = isApplicationRunning();
-        
+
         Intent intent = new Intent("RNPushNotificationReceiveNotification");
         bundle.putBoolean("foreground", isRunning);
+        bundle.putBoolean("userInteraction", false);
         intent.putExtra("notification", bundle);
         sendBroadcast(intent);
 
@@ -63,7 +64,7 @@ public class RNPushNotificationListenerService extends GcmListenerService {
         for (ActivityManager.RunningAppProcessInfo processInfo : processInfos) {
             if (processInfo.processName.equals(getApplication().getPackageName())) {
                 if (processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
-                    for (String d: processInfo.pkgList) {
+                    for (String d : processInfo.pkgList) {
                         return true;
                     }
                 }

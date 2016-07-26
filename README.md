@@ -1,8 +1,17 @@
 # React Native Push Notifications
-[![npm version](https://badge.fury.io/js/react-native-push-notification.svg?update=1)](http://badge.fury.io/js/react-native-push-notification)
-[![npm downloads](https://img.shields.io/npm/dm/react-native-push-notification.svg?update=1)](https://img.shields.io/npm/dm/react-native-push-notification.svg?update=1)
+[![npm version](https://badge.fury.io/js/react-native-push-notification.svg?update=2)](http://badge.fury.io/js/react-native-push-notification)
+[![npm downloads](https://img.shields.io/npm/dm/react-native-push-notification.svg?update=2)](https://img.shields.io/npm/dm/react-native-push-notification.svg?update=2)
 
 React Native Local and Remote Notifications for iOS and Android
+
+## Supported React Native Versions
+| Component Version     | RN Version    | README     |
+|-----------------------|---------------|------------|
+| **1.0.7**          | **<= 0.27**   | [Open](https://github.com/zo0r/react-native-push-notification/blob/f42723817f1687e0da23e6753eb8a9f0385b6ac5/README.md)   |
+| **1.0.8**          | **0.28**   | [Open](https://github.com/zo0r/react-native-push-notification/blob/2eafd1961273ca6a82ad4dd6514fbf1d1a829089/README.md)   |
+| **2.0.1**          | **0.29**   | [Open](https://github.com/zo0r/react-native-push-notification/blob/c7ab7cd84ea19e42047379aefaf568bb16a81936/README.md)   |
+| **>= 2.0.2**          | **>= 0.30**   | [Open](https://github.com/zo0r/react-native-push-notification/blob/32df1d4ef8294dbf9a29e8d13d70e1e40b16ad3c/README.md)   |
+
 
 ## Installation
 `npm install react-native-push-notification`
@@ -177,8 +186,8 @@ PushNotification.configure({
     popInitialNotification: true,
 
     /**
-      * IOS ONLY: (optional) default: true
-      * - Specified if permissions will requested or not,
+      * (optional) default: true
+      * - Specified if permissions (ios) and token (android and ios) will requested or not,
       * - if not, you must call PushNotificationsHandler.requestPermissions() later
       */
     requestPermissions: true,
@@ -192,6 +201,7 @@ Notification object example:
 ```javascript
 {
     foreground: false, // BOOLEAN: If the notification was received in foreground or not
+    userInteraction: false, // BOOLEAN: If the notification was opened by the user from the notification area or not
     message: 'My Notification Message', // STRING: The notification message
     data: {}, // OBJECT: The push data
 }
@@ -216,9 +226,21 @@ PushNotification.localNotification({
     subText: "This is a subText", // (optional) default: none
     number: '10', // (optional) Valid 32 bit integer specified as string. default: none (Cannot be zero)
     color: "red", // (optional) default: system default
+    vibrate: true, // (optional) default: true
+    vibration: 300, // vibration length in milliseconds, ignored if vibrate=false, default: 1000
+    tag: 'some_tag', // (optional) add tag to message
+    group: "group", // (optional) add group to message
     sound: 'default', // (optional) Sound to play when the notification is shown. Value of 'default' plays the default sound. It can be set to a custom sound such as 'android.resource://com.xyz/raw/my_sound'. It will look for the 'my_sound' audio file in 'res/raw' directory and play it. default: null (no sound is played)
+    
+    /* iOS only properties */
+    alertAction: // (optional) default: view
+    category: // (optional) default: null
+    userInfo: // (optional) default: null (object containing additional notification data)
+
     /* iOS and Android properties */
     message: "My Notification Message" // (required)
+    playSound: false, // (optional) default: true
+    number: 10 // (optional) default: none (Cannot be zero)
 });
 
 PushNotification.localNotificationSchedule({
