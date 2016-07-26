@@ -58,7 +58,8 @@ public class RNPushNotificationHelper {
         if (notificationIDString != null) {
             notificationID = Integer.parseInt(notificationIDString);
         } else {
-            notificationID = (int) System.currentTimeMillis();
+            Log.e("RNPushNotification", "No notification ID specified to cancel notification");
+            return null;
         }
 
         Intent notificationIntent = new Intent(mContext, RNPushNotificationPublisher.class);
@@ -350,19 +351,21 @@ public class RNPushNotificationHelper {
         Set<String> ids = mSharedPreferences.getAll().keySet();
 
         for (String id: ids) {
-            this.cancelNotification(id);
+            Bundle b = new Bundle();
+            b.putString("id", id);
+            this.cancelNotification(b);
         }
     }
 
-    public void cancelNotification(String notificationIDString) {
+    public void cancelNotification(Bundle bundle) {
         NotificationManager notificationManager =
                 (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
 
+        String notificationIDString = bundle.getString("id");
+
         notificationManager.cancel(Integer.parseInt(notificationIDString));
 
-        Bundle b = new Bundle();
-        b.putString("id", notificationIDString);
-        getAlarmManager().cancel(getScheduleNotificationIntent(b));
+        getAlarmManager().cancel(getScheduleNotificationIntent(bundle));
 
         SharedPreferences.Editor editor = mSharedPreferences.edit();
         editor.remove(notificationIDString);

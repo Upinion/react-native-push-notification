@@ -176,6 +176,11 @@ public class RNPushNotification extends ReactContextBaseJavaModule {
     @ReactMethod
     public void presentLocalNotification(ReadableMap details) {
         Bundle bundle = Arguments.toBundle(details);
+        // If notification ID is an Int, log an error
+        if ( bundle.getString("id") == null && bundle.getInt("id") != 0) {
+            Log.i("ReactNotification", "Notification id should a String");
+            return;
+        }
         // If notification ID is not provided by the user, generate one at random
         if ( bundle.getString("id") == null ) {
             bundle.putString("id", String.valueOf(mRandomNumberGenerator.nextInt()));
@@ -186,6 +191,11 @@ public class RNPushNotification extends ReactContextBaseJavaModule {
     @ReactMethod
     public void scheduleLocalNotification(ReadableMap details) {
         Bundle bundle = Arguments.toBundle(details);
+        // If notification ID is an Int, log an error
+        if ( bundle.getString("id") == null && bundle.getInt("id") != 0) {
+            Log.i("ReactNotification", "Notification id should a String");
+            return;
+        }
         // If notification ID is not provided by the user, generate one at random
         if ( bundle.getString("id") == null ) {
             bundle.putString("id", String.valueOf(mRandomNumberGenerator.nextInt()));
@@ -211,9 +221,14 @@ public class RNPushNotification extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void cancelLocalNotifications(ReadableMap details) {
-        String notificationIdString = details.getString("id");
-        Log.i("Notification", "Deleting notification with ID " + notificationIdString);
-        mRNPushNotificationHelper.cancelNotification(notificationIdString);
+        Bundle bundle = Arguments.toBundle(details);
+        // If notification ID is an Int, log an error
+        if ( bundle.getString("id") == null && bundle.getInt("id") != 0) {
+            Log.i("ReactNotification", "Notification id should a String");
+            return;
+        }
+        Log.i("ReactNotification", "Deleting notification with ID " + bundle.getString("id"));
+        mRNPushNotificationHelper.cancelNotification(bundle);
     }
 
     @ReactMethod
