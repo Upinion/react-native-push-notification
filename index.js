@@ -131,7 +131,7 @@ Notifications.localNotificationSchedule = function(details: Object) {
 			alertBody: details.message
 		});
 	} else {
-		details.fireDate = details.date.getTime();
+		details.fireDate = details.date;
 		delete details.date;
 		this.handler.scheduleLocalNotification(details);
 	}

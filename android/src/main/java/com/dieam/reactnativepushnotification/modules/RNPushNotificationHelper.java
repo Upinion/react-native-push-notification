@@ -142,7 +142,7 @@ public class RNPushNotificationHelper {
             return;
         }
 
-        if(bundle.getString("id") == null) {
+        if (bundle.getString("id") == null) {
             Log.e("RNPushNotification", "No notification ID specified for the notification");
             return;
         }
@@ -169,13 +169,13 @@ public class RNPushNotificationHelper {
 
         String subText = bundle.getString("subText");
 
-        if ( subText != null ) {
+        if (subText != null) {
             notification.setSubText(subText);
         }
 
         String numberString = bundle.getString("number");
 
-        if ( numberString != null ) {
+        if (numberString != null) {
             notification.setNumber(Integer.parseInt(numberString));
         }
 
@@ -184,21 +184,21 @@ public class RNPushNotificationHelper {
 
         String smallIcon = bundle.getString("smallIcon");
 
-        if ( smallIcon != null ) {
+        if (smallIcon != null) {
             smallIconResId = res.getIdentifier(smallIcon, "mipmap", packageName);
         } else {
             smallIconResId = res.getIdentifier("ic_notification", "mipmap", packageName);
         }
 
-        if ( smallIconResId == 0 ) {
+        if (smallIconResId == 0) {
             smallIconResId = res.getIdentifier("ic_launcher", "mipmap", packageName);
 
-            if ( smallIconResId == 0 ) {
-                smallIconResId  = android.R.drawable.ic_dialog_info;
+            if (smallIconResId == 0) {
+                smallIconResId = android.R.drawable.ic_dialog_info;
             }
         }
 
-        if ( largeIcon != null ) {
+        if (largeIcon != null) {
             largeIconResId = res.getIdentifier(largeIcon, "mipmap", packageName);
         } else {
             largeIconResId = res.getIdentifier("ic_launcher", "mipmap", packageName);
@@ -206,14 +206,14 @@ public class RNPushNotificationHelper {
 
         Bitmap largeIconBitmap = BitmapFactory.decodeResource(res, largeIconResId);
 
-        if ( largeIconResId != 0 && ( largeIcon != null || android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP ) ) {
+        if (largeIconResId != 0 && (largeIcon != null || android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP)) {
             notification.setLargeIcon(largeIconBitmap);
         }
 
         notification.setSmallIcon(smallIconResId);
         String bigText = bundle.getString("bigText");
 
-        if (bigText == null ) {
+        if (bigText == null) {
             bigText = bundle.getString("message");
         }
 
@@ -224,10 +224,10 @@ public class RNPushNotificationHelper {
         intent.putExtra("notification", bundle);
 
         String soundName = bundle.getString("sound");
-        if(soundName != null) {
+        if (soundName != null) {
             Uri soundUri = null;
-            
-            if("default".equalsIgnoreCase(soundName)) {
+
+            if ("default".equalsIgnoreCase(soundName)) {
                 soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
             } else {
                 soundUri = Uri.parse(soundName);
@@ -235,7 +235,7 @@ public class RNPushNotificationHelper {
             notification.setSound(soundUri);
         }
 
-        if ( android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ) {
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             notification.setCategory(NotificationCompat.CATEGORY_CALL);
 
             String color = bundle.getString("color");
@@ -255,10 +255,12 @@ public class RNPushNotificationHelper {
         notification.setContentIntent(pendingIntent);
 
         JSONArray actionsArray = null;
-        try {
-            actionsArray = new JSONArray(bundle.getString("actions"));
-        } catch (JSONException e) {
-            Log.e("RNPushNotification", "Exception while converting actions to JSON object.", e);
+        if (bundle.getString("actions") != null) {
+            try {
+                actionsArray = new JSONArray(bundle.getString("actions"));
+            } catch (Exception e) {
+                Log.e("RNPushNotification", "Exception while converting actions to JSON object.", e);
+            }
         }
 
         if (actionsArray != null) {

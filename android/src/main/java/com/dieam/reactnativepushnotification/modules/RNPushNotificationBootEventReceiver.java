@@ -25,7 +25,7 @@ public class RNPushNotificationBootEventReceiver extends BroadcastReceiver {
         if (intent.getAction().equals("android.intent.action.BOOT_COMPLETED")) {
             SharedPreferences sharedPreferences = context.getSharedPreferences(RNPushNotificationHelper.PREFERENCES_KEY, Context.MODE_PRIVATE);
             Set<String> ids = sharedPreferences.getAll().keySet();
-            RNPushNotificationHelper rnPushNotificationHelper = new RNPushNotificationHelper((Application)context.getApplicationContext(), context);
+            RNPushNotificationHelper rnPushNotificationHelper = new RNPushNotificationHelper((Application)context.getApplicationContext());
 
             for (String id: ids) {
                 try {
