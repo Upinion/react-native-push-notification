@@ -266,8 +266,6 @@ public class RNPushNotificationHelper {
                     String notificationIDString = bundle.getString("id");
 
                     if (notificationIDString != null) {
-                        Log.w(TAG, "'id' field set as a string instead of an int");
-
                         try {
                             notificationID = Integer.parseInt(notificationIDString);
                         } catch (NumberFormatException nfe) {
@@ -293,51 +291,49 @@ public class RNPushNotificationHelper {
                 notification.setVibrate(new long[]{0, vibration});
             }
 
-        JSONArray actionsArray = null;
-        if (bundle.getString("actions") != null) {
-            try {
-                actionsArray = new JSONArray(bundle.getString("actions"));
-            } catch (Exception e) {
-                Log.e("RNPushNotification", "Exception while converting actions to JSON object.", e);
-            }
-        }
-
-        if (actionsArray != null) {
-            // No icon for now. The icon value of 0 shows no icon.
-            int icon = 0;
-
-            // Add button for each actions.
-            for (int i = 0; i < actionsArray.length(); i++) {
-                String action = null;
+            JSONArray actionsArray = null;
+            if (bundle.getString("actions") != null) {
                 try {
-                    action = actionsArray.getString(i);
-                } catch (JSONException e) {
-                    Log.e("RNPushNotification", "Exception while getting action from actionsArray.", e);
-                    continue;
+                    actionsArray = new JSONArray(bundle.getString("actions"));
+                } catch (Exception e) {
+                    Log.e("RNPushNotification", "Exception while converting actions to JSON object.", e);
                 }
-
-                Intent actionIntent = new Intent();
-                actionIntent.setAction(action);
-                // Add "action" for later identifying which button gets pressed.
-                bundle.putString("action", action);
-                actionIntent.putExtra("notification", bundle);
-                PendingIntent pendingActionIntent = PendingIntent.getBroadcast(mContext, notificationID, actionIntent,
-                        PendingIntent.FLAG_UPDATE_CURRENT);
-                notification.addAction(icon, action, pendingActionIntent);
             }
-        }
 
-        Notification info = notification.build();
-        info.defaults |= Notification.DEFAULT_VIBRATE;
-        info.defaults |= Notification.DEFAULT_LIGHTS;
+            if (actionsArray != null) {
+                // No icon for now. The icon value of 0 shows no icon.
+                int icon = 0;
+
+                // Add button for each actions.
+                for (int i = 0; i < actionsArray.length(); i++) {
+                    String action = null;
+                    try {
+                        action = actionsArray.getString(i);
+                    } catch (JSONException e) {
+                        Log.e("RNPushNotification", "Exception while getting action from actionsArray.", e);
+                        continue;
+                    }
+
+                    Intent actionIntent = new Intent();
+                    actionIntent.setAction(action);
+                    // Add "action" for later identifying which button gets pressed.
+                    bundle.putString("action", action);
+                    actionIntent.putExtra("notification", bundle);
+                    PendingIntent pendingActionIntent = PendingIntent.getBroadcast(mContext, notificationID, actionIntent,
+                            PendingIntent.FLAG_UPDATE_CURRENT);
+                    notification.addAction(icon, action, pendingActionIntent);
+                }
+            }
+
+
             Notification info = notification.build();
             info.defaults |= Notification.DEFAULT_LIGHTS;
 
-        if(mSharedPreferences.getString(Integer.toString(notificationID), null) != null) {
-            SharedPreferences.Editor editor = mSharedPreferences.edit();
-            editor.remove(Integer.toString(notificationID));
-            commitPreferences(editor);
-        }
+            if(mSharedPreferences.getString(Integer.toString(notificationID), null) != null) {
+                SharedPreferences.Editor editor = mSharedPreferences.edit();
+                editor.remove(Integer.toString(notificationID));
+                commitPreferences(editor);
+            }
 
             if (bundle.containsKey("tag")) {
                 String tag = bundle.getString("tag");
