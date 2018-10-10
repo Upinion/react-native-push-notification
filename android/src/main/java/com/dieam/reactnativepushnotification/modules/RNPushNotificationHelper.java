@@ -27,6 +27,11 @@ public class RNPushNotificationHelper {
     private static final long DEFAULT_VIBRATION = 1000L;
     private static final String TAG = RNPushNotificationHelper.class.getSimpleName();
 
+    private static final String CHANNEL_ID = "0";
+    private static final String CHANNEL_NAME = "Notifications";
+    private static final String SILENCE_CHANNEL_ID = "1";
+    private static final String SILENCE_CHANNEL_NAME = "Silence Notifications";
+
     private Context mContext;
     private final SharedPreferences mSharedPreferences;
 
@@ -245,7 +250,10 @@ public class RNPushNotificationHelper {
             bundle.putBoolean("userInteraction", true);
             intent.putExtra("notification", bundle);
 
+            Boolean isSilence = true;
+
             if (!bundle.containsKey("playSound") || bundle.getBoolean("playSound")) {
+                isSilence = false;
                 Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                 notification.setSound(defaultSoundUri);
             }
@@ -286,6 +294,7 @@ public class RNPushNotificationHelper {
             notification.setContentIntent(pendingIntent);
 
             if (!bundle.containsKey("vibrate") || bundle.getBoolean("vibrate")) {
+                isSilence = false;
                 long vibration = bundle.containsKey("vibration") ? (long) bundle.getDouble("vibration") : DEFAULT_VIBRATION;
                 if (vibration == 0)
                     vibration = DEFAULT_VIBRATION;
@@ -326,6 +335,35 @@ public class RNPushNotificationHelper {
                 }
             }
 
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                // Select channel
+                String channel_id = mContext.getPackageName() + (isSilence ? this.SILENCE_CHANNEL_ID : this.CHANNEL_ID);
+                String channel_name = isSilence ? this.SILENCE_CHANNEL_NAME : this.CHANNEL_NAME;
+                // Create or update.
+                NotificationChannel channel = new NotificationChannel(
+                    channel_id,
+                    channel_name,
+                    NotificationManager.IMPORTANCE_DEFAULT
+                );
+                if (!isSilence) {
+                    channel.enableLights(true);
+                    channel.setLightColor(Color.GREEN);
+                    channel.enableVibration(true);
+                    channel.setLockscreenVisibility(Notification.VISIBILITY_SECRET);
+                    Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                    channel.setSound(defaultSoundUri, null);
+                } else {
+                    channel.enableLights(true);
+                    channel.setLightColor(Color.GREEN);
+                    channel.setLockscreenVisibility(Notification.VISIBILITY_SECRET);
+                    channel.enableVibration(false);
+                    channel.setSound(null, null);
+                }
+
+                notificationManager.createNotificationChannel(channel);
+                // Assign channel to notification
+                notification.setChannelId(channel_id);
+            }
 
             Notification info = notification.build();
             info.defaults |= Notification.DEFAULT_LIGHTS;
