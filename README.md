@@ -49,16 +49,6 @@ In your `AndroidManifest.xml`
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
 	<application ....>
-		<receiver
-			android:name="com.google.android.gms.gcm.GcmReceiver"
-			android:exported="true"
-			android:permission="com.google.android.c2dm.permission.SEND" >
-			<intent-filter>
-				<action android:name="com.google.android.c2dm.intent.RECEIVE" />
-				<category android:name="${applicationId}" />
-			</intent-filter>
-		</receiver>
-	
 		<receiver android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationPublisher" />
 		<receiver android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationBootEventReceiver">
             <intent-filter>
@@ -70,7 +60,7 @@ In your `AndroidManifest.xml`
 			android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationListenerService"
 			android:exported="false" >
 			<intent-filter>
-				<action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
 			</intent-filter>
 		</service>
         .....
