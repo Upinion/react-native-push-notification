@@ -55,5 +55,6 @@ project.xcworkspace
 #
 react-native-notifications.iml
 .idea
+.git
 .gradle
 local.properties
