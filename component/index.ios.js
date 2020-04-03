@@ -2,11 +2,11 @@
 
 import {
   AppState,
-  PushNotificationIOS
 } from 'react-native';
+
+import PushNotificationIOS from "@react-native-community/push-notification-ios";
 
 module.exports = {
   state: AppState,
   component: PushNotificationIOS
 };
-
